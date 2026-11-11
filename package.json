@@ -1,0 +1,204 @@
+{
+  "name": "readbar",
+  "displayName": "摸鱼阅读",
+  "description": "把小说放进 VS Code 状态栏，一边写代码一边摸鱼看小说",
+  "version": "1.0.0",
+  "publisher": "kiryu",
+  "license": "MIT",
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#1f2430",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "reader",
+    "novel",
+    "txt",
+    "epub",
+    "mobi",
+    "摸鱼",
+    "看小说",
+    "statusbar"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "readbar.menu",
+        "title": "菜单（含所有命令）",
+        "category": "摸鱼阅读"
+      },
+      {
+        "command": "readbar.addBook",
+        "title": "添加书籍",
+        "category": "摸鱼阅读"
+      },
+      {
+        "command": "readbar.pickBook",
+        "title": "切换书籍",
+        "category": "摸鱼阅读"
+      },
+      {
+        "command": "readbar.removeBook",
+        "title": "删除书籍",
+        "category": "摸鱼阅读"
+      },
+      {
+        "command": "readbar.next",
+        "title": "下一页",
+        "category": "摸鱼阅读"
+      },
+      {
+        "command": "readbar.prev",
+        "title": "上一页",
+        "category": "摸鱼阅读"
+      },
+      {
+        "command": "readbar.jumpChapter",
+        "title": "章节跳转",
+        "category": "摸鱼阅读"
+      },
+      {
+        "command": "readbar.search",
+        "title": "搜索内容",
+        "category": "摸鱼阅读"
+      },
+      {
+        "command": "readbar.jumpPercent",
+        "title": "跳转到百分比",
+        "category": "摸鱼阅读"
+      },
+      {
+        "command": "readbar.toggleAutoPage",
+        "title": "开关自动翻页",
+        "category": "摸鱼阅读"
+      },
+      {
+        "command": "readbar.toggleStatusBar",
+        "title": "显示 / 隐藏状态栏",
+        "category": "摸鱼阅读"
+      },
+      {
+        "command": "readbar.customizeKeys",
+        "title": "自定义快捷键",
+        "category": "摸鱼阅读"
+      },
+      {
+        "command": "readbar.setCharsPerLine",
+        "title": "设置每行字数",
+        "category": "摸鱼阅读"
+      },
+      {
+        "command": "readbar.openSettings",
+        "title": "打开设置",
+        "category": "摸鱼阅读"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "readbar.next",
+        "key": "alt+]",
+        "when": "readbar.active && config.readbar.useDefaultKeys"
+      },
+      {
+        "command": "readbar.prev",
+        "key": "alt+[",
+        "when": "readbar.active && config.readbar.useDefaultKeys"
+      },
+      {
+        "command": "readbar.menu",
+        "key": "alt+m",
+        "when": "config.readbar.useDefaultKeys"
+      }
+    ],
+    "configuration": {
+      "title": "摸鱼阅读",
+      "properties": {
+        "readbar.statusBarAlign": {
+          "type": "string",
+          "enum": [
+            "left",
+            "right"
+          ],
+          "enumDescriptions": [
+            "状态栏最左边（默认）",
+            "状态栏右边，排在行列号左边"
+          ],
+          "default": "left",
+          "description": "阅读文字显示在状态栏的哪一侧。"
+        },
+        "readbar.useDefaultKeys": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用默认快捷键（Alt+] / Alt+[ / Alt+M）。想在「键盘快捷方式」里完全自己定键，可以关掉它。"
+        },
+        "readbar.maxStatusWidth": {
+          "type": "number",
+          "default": 720,
+          "minimum": 200,
+          "maximum": 2400,
+          "description": "状态栏文字最多占多少像素宽，0 表示不限制。窗口/状态栏比较窄时调小，否则 VS Code 会直接把右边裁掉。"
+        },
+        "readbar.charsPerLine": {
+          "type": "number",
+          "default": 40,
+          "minimum": 10,
+          "maximum": 300,
+          "description": "每页最多多少字（上限）。实际显示字数还会被状态栏宽度 maxStatusWidth 限制到放得下为止，翻页步长始终等于实际显示的字数。"
+        },
+        "readbar.showIcon": {
+          "type": "boolean",
+          "default": true,
+          "description": "状态栏文字前面是否显示一个书本图标。"
+        },
+        "readbar.showPercent": {
+          "type": "boolean",
+          "default": false,
+          "description": "状态栏文字后面是否显示阅读进度百分比。"
+        },
+        "readbar.keepFormat": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否保留原文的换行和缩进格式。"
+        },
+        "readbar.autoResume": {
+          "type": "boolean",
+          "default": true,
+          "description": "VS Code 启动后自动恢复到上次阅读的书籍和进度。"
+        },
+        "readbar.autoPageSeconds": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 600,
+          "description": "自动翻页间隔（秒），0 表示关闭。"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "test": "node test/smoke.js",
+    "package": "vsce package",
+    "package:file": "vsce package --out readbar.vsix",
+    "install:vsix": "npm run package:file && code --install-extension readbar.vsix --force",
+    "publish:patch": "vsce publish patch"
+  },
+  "dependencies": {
+    "epub": "^1.2.1",
+    "iconv-lite": "^0.4.24",
+    "jschardet": "^3.0.0",
+    "js-mobi": "^0.0.2"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^3.2.0"
+  }
+}
