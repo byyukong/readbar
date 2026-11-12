@@ -1,5 +1,6 @@
-# 推送 v* tag 时自动测试并发布到 Marketplace（Trusted Publishing，无需 PAT）
-# 前置条件：Marketplace publisher 页面 → Trusted Publishing → 建一条策略，
+# 推送 v* tag → 测试 → 打包 VSIX → 发布到 Marketplace → 创建 GitHub Release
+# 认证用 Trusted Publishing（OIDC），仓库里不存任何密钥。
+# 前置条件：Marketplace publisher 页面 → Trusted Publishing → 建策略，
 # 仓库填 byyukong/readbar，workflow 填 publish.yml
 name: publish
 
@@ -11,24 +12,48 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      id-token: write # 缺了就拿不到 OIDC token
+      contents: write # 创建 GitHub Release
+      id-token: write # Marketplace OIDC 交换
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      # 只装运行时依赖：devDependencies 里的 @vscode/vsce 会在 Linux 上把 npm 搞崩
-      - run: npm ci --omit=dev --no-audit --no-fund
-      - run: npm test
+
+      # 只装运行时依赖：devDependencies 里的 @vscode/vsce-sign 在 Linux 上会搞崩 npm
+      - name: 安装依赖
+        run: npm ci --omit=dev --no-audit --no-fund
+
+      - name: 自动测试
+        run: npm test
+
       - name: 安装 vsce
         run: npm i -g @vscode/vsce@4.1.0 --ignore-scripts --no-audit --no-fund
-      - name: 打包并留存 vsix
+
+      - name: 打包 VSIX
         run: vsce package
-      - uses: actions/upload-artifact@v4
-        with:
-          name: vsix
-          path: '*.vsix'
-      - name: 发布
+
+      - name: 发布到 VS Code Marketplace
         run: vsce publish --oidc --skip-duplicate
+
+      - name: 创建 GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VER="${TAG#v}"
+          # 从 CHANGELOG.md 抽当前版本的段落当发布说明
+          NOTES=$(awk -v ver="$VER" '
+            $0 ~ "^## " ver {flag=1; next}
+            flag && /^## / {exit}
+            flag {print}
+          ' CHANGELOG.md)
+          if [ -z "$NOTES" ]; then NOTES=$(git log -1 --pretty=%B); fi
+          printf '%s\n' "$NOTES" > notes.md
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" readbar-*.vsix --clobber
+          else
+            gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag readbar-*.vsix
+          fi
