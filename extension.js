@@ -20,6 +20,7 @@ const state = {
   visible: true,
   autoTimer: null,
   autoPausedByHide: false,
+  pageStarts: [],
   saveTimer: null,
   opening: false,
   settings: {}
@@ -180,6 +181,7 @@ async function openBook(id) {
       return false;
     }
     state.currentId = id;
+    state.pageStarts = [Number(book.progress) || 0];
     persistList(true);
     render();
     return true;
@@ -212,12 +214,20 @@ function step(direction) {
       return;
     }
     book.progress = progress + size;
+    state.pageStarts.push(book.progress);
   } else {
     if (progress <= 0) {
       flash('已经是第一页了');
       return;
     }
-    book.progress = Math.max(0, progress - size);
+    // 每页字数随字符宽度浮动，不能拿“当前页长度”当后退步长，否则每退一次就错位几个字
+    if (state.pageStarts.length > 1) {
+      state.pageStarts.pop();
+      book.progress = state.pageStarts[state.pageStarts.length - 1];
+    } else {
+      book.progress = Math.max(0, progress - size);
+      state.pageStarts = [book.progress];
+    }
   }
   persistList(false);
   render();
@@ -232,6 +242,7 @@ function goto(progress) {
     return;
   }
   book.progress = Math.max(0, Math.min(Number(progress) || 0, Math.max(0, state.content.length - 1)));
+  state.pageStarts = [book.progress];
   persistList(false);
   render();
 }
@@ -664,6 +675,12 @@ function activate(context) {
       if (previous.statusBarAlign !== state.settings.statusBarAlign) {
         createStatusItem();
         return;
+      }
+      if (previous.charsPerLine !== state.settings.charsPerLine || previous.maxStatusWidth !== state.settings.maxStatusWidth) {
+        const book = currentBook();
+        if (book) {
+          state.pageStarts = [Number(book.progress) || 0];
+        }
       }
       if (previous.keepFormat !== state.settings.keepFormat) {
         state.content = '';

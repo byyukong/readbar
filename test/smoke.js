@@ -337,6 +337,32 @@ async function main() {
   assert(configValues.autoPageSeconds === 2, '间隔已写入设置: ' + configValues.autoPageSeconds);
   await commands.get('readbar.toggleAutoPage')(); // 停掉计时器，否则测试进程不退出
 
+  console.log('\n[12] 翻页不漂移（每页字数不一致时）');
+  const mixed = path.join(workspace, '混排.txt');
+  const lines = [];
+  for (let i = 1; i <= 40; i++) {
+    lines.push('第' + i + '段');
+    lines.push('abc'.repeat((i % 7) + 1) + '知道他想做什么，但还是伸手和夏德握了一下。');
+  }
+  fs.writeFileSync(mixed, lines.join('\n'), 'utf8');
+  configValues.maxStatusWidth = 300; // 收窄到放不下整数个汉字，逼出长短不一的页
+  configListener({ affectsConfiguration: () => true });
+  scripted.openDialog.push([vscodeStub.Uri.file(mixed)]);
+  await commands.get('readbar.addBook')();
+
+  const pages = [statusItem.text];
+  for (let i = 0; i < 6; i++) {
+    await commands.get('readbar.next')();
+    pages.push(statusItem.text);
+  }
+  const lens = pages.map((t) => t.length);
+  assert(new Set(lens).size > 1, '各页字数确实不一致: ' + lens.join(','));
+
+  for (let i = pages.length - 2; i >= 0; i--) {
+    await commands.get('readbar.prev')();
+    assert(statusItem.text === pages[i], '退回第 ' + (i + 1) + ' 页内容完全一致');
+  }
+
   console.log('\n全部通过 ✅  数据目录: ' + workspace);
 }
 
