@@ -1,6 +1,6 @@
-# 推送 v* tag 时自动测试并发布到 Marketplace。
+# 推送 v* tag 时自动测试并发布到 Marketplace（Trusted Publishing，无需 PAT）
 # 前置条件：Marketplace publisher 页面 → Trusted Publishing → 建一条策略，
-# 仓库填 byyukong/readbar，workflow 填 publish.yml。
+# 仓库填 byyukong/readbar，workflow 填 publish.yml
 name: publish
 
 on:
@@ -19,9 +19,6 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      # vsce 依赖 keytar，Linux 上要么下到预编译包，要么得有 libsecret 头文件自己编
-      - name: 安装 keytar 编译依赖
-        run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev
       - run: npm ci --no-audit --no-fund
       - run: npm test
       - name: 打包并留存 vsix
