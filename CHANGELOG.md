@@ -1,5 +1,10 @@
 # 更新日志
 
+## 1.0.1
+
+- Marketplace 详情页增加「仓库 / 问题反馈」入口
+- 新增 GitHub Actions：推送 tag 自动跑测试并发布（Trusted Publishing，无需 PAT）
+
 ## 1.0.0
 
 首个公开版本。

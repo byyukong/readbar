@@ -1,0 +1,31 @@
+# 推送 v* tag 时自动测试并发布到 Marketplace。
+# 前置条件：Marketplace publisher 页面 → Trusted Publishing → 建一条策略，
+# 仓库填 byyukong/readbar，workflow 填 publish.yml。
+name: publish
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # 缺了就拿不到 OIDC token
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: 打包并留存 vsix
+        run: npx @vscode/vsce package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vsix
+          path: '*.vsix'
+      - name: 发布
+        run: npx @vscode/vsce publish --oidc

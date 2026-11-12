@@ -5,6 +5,13 @@
   "version": "1.0.0",
   "publisher": "kiryu",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/byyukong/readbar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/byyukong/readbar/issues"
+  },
   "icon": "images/icon.png",
   "galleryBanner": {
     "color": "#1f2430",
