@@ -46,7 +46,7 @@ jobs:
           VER="${TAG#v}"
           # 从 CHANGELOG.md 抽当前版本的段落当发布说明
           NOTES=$(awk -v ver="$VER" '
-            $0 ~ "^## " ver {flag=1; next}
+            $0 ~ "^## " ver {print; flag=1; next}
             flag && /^## / {exit}
             flag {print}
           ' CHANGELOG.md)
