@@ -19,7 +19,10 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      # vsce 依赖 keytar，Linux 上要么下到预编译包，要么得有 libsecret 头文件自己编
+      - name: 安装 keytar 编译依赖
+        run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev
+      - run: npm ci --no-audit --no-fund
       - run: npm test
       - name: 打包并留存 vsix
         run: npx @vscode/vsce package

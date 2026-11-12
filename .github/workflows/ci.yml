@@ -14,5 +14,6 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      # 测试只依赖 runtime 依赖；跳过 devDependencies 可以绕开 vsce -> keytar 的原生编译
+      - run: npm ci --omit=dev --no-audit --no-fund
       - run: npm test
