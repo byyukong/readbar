@@ -53,6 +53,7 @@ jobs:
           if [ -z "$NOTES" ]; then NOTES=$(git log -1 --pretty=%B); fi
           printf '%s\n' "$NOTES" > notes.md
           if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file notes.md
             gh release upload "$TAG" readbar-*.vsix --clobber
           else
             gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag readbar-*.vsix
