@@ -19,15 +19,16 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      # --ignore-scripts：@vscode/vsce-sign 的安装脚本会去下载签名二进制，
-      # 在 Linux CI 上会让 npm 直接崩溃；我们不做 vsix 签名，跳过即可
-      - run: npm ci --ignore-scripts --no-audit --no-fund
+      # 只装运行时依赖：devDependencies 里的 @vscode/vsce 会在 Linux 上把 npm 搞崩
+      - run: npm ci --omit=dev --no-audit --no-fund
       - run: npm test
+      - name: 安装 vsce
+        run: npm i -g @vscode/vsce@4.1.0 --ignore-scripts --no-audit --no-fund
       - name: 打包并留存 vsix
-        run: npx @vscode/vsce package
+        run: vsce package
       - uses: actions/upload-artifact@v4
         with:
           name: vsix
           path: '*.vsix'
       - name: 发布
-        run: npx @vscode/vsce publish --oidc
+        run: vsce publish --oidc
