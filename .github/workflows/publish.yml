@@ -31,4 +31,4 @@ jobs:
           name: vsix
           path: '*.vsix'
       - name: 发布
-        run: vsce publish --oidc
+        run: vsce publish --oidc --skip-duplicate
