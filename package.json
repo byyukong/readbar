@@ -2,7 +2,7 @@
   "name": "readbar",
   "displayName": "摸鱼阅读",
   "description": "把小说放进 VS Code 状态栏，一边写代码一边摸鱼看小说",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "kiryu",
   "license": "MIT",
   "repository": {
