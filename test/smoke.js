@@ -363,6 +363,12 @@ async function main() {
     assert(statusItem.text === pages[i], '退回第 ' + (i + 1) + ' 页内容完全一致');
   }
 
+  console.log('\n[13] 设置项 schema 与说明一致');
+  const pkg = require('../package.json');
+  const props = pkg.contributes.configuration.properties;
+  assert(props['readbar.maxStatusWidth'].minimum === 0, 'maxStatusWidth 允许填 0（0 = 不限制）');
+  assert(props['readbar.autoPageSeconds'].minimum === 0, 'autoPageSeconds 允许填 0（0 = 关闭）');
+
   console.log('\n全部通过 ✅  数据目录: ' + workspace);
 }
 

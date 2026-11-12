@@ -151,9 +151,9 @@
         "readbar.maxStatusWidth": {
           "type": "number",
           "default": 720,
-          "minimum": 200,
+          "minimum": 0,
           "maximum": 2400,
-          "description": "状态栏文字最多占多少像素宽，0 表示不限制。窗口/状态栏比较窄时调小，否则 VS Code 会直接把右边裁掉。"
+          "description": "状态栏文字最多占多少像素宽，填 0 表示不限制（此时可能被窗口右边直接裁掉）。窗口/状态栏比较窄时调小。"
         },
         "readbar.charsPerLine": {
           "type": "number",
